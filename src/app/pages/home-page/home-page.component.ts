@@ -2,9 +2,9 @@ import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import ptBr from '@angular/common/locales/pt';
 import { Component, DEFAULT_CURRENCY_CODE, LOCALE_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogConfig } from '@angular/material/dialog';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { environment } from '../../../environments/environment.development';
+import Swal from 'sweetalert2';
 
 interface ICalcResult {
   total: number;
@@ -121,5 +121,13 @@ export class HomePageComponent {
 
   formatCurrency(value: number): string | null {
     return this.decimalPipe.transform(value);
+  }
+
+  openModal(title:string, text:HTMLParagraphElement){
+    Swal.fire({
+      icon: "info",
+      title: title,
+      text: text.textContent?.toString()
+    });
   }
 }

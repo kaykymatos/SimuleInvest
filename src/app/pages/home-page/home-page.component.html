@@ -17,7 +17,10 @@
                 name="initialAmount"
                 placeholder="R$ 0,00"
               />
-              <span class="input-group-text">
+              <span
+                class="input-group-text"
+                (click)="openModal('Valor Inicial', initialAmount)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -44,7 +47,10 @@
                 [(ngModel)]="monthlyContribution"
                 name="monthlyContribution"
               />
-              <span class="input-group-text"data-toggle="modal" data-target="#aporteMensalInfo">
+              <span
+                class="input-group-text"
+                (click)="openModal('Aporte Mensal', monthlyContribution)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -71,7 +77,10 @@
                 [(ngModel)]="interestRate"
                 name="interestRate"
               />
-              <span class="input-group-text"data-toggle="modal" data-target="#taxaJurosInfo">
+              <span
+                class="input-group-text"
+                (click)="openModal('Taxa de Juros (% ao ano):', interestRate)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -98,7 +107,10 @@
                 [(ngModel)]="duration"
                 name="duration"
               />
-              <span class="input-group-text" data-toggle="modal" data-target="#duracaoInfo">
+              <span
+                class="input-group-text"
+                (click)="openModal('Duração (anos):', duracao)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -163,3 +175,33 @@
     </ngx-charts-line-chart>
   </div>
 </section>
+
+<p #duracao hidden>
+  A duração do investimento é o tempo que o valor permanecerá aplicado,
+  geralmente indicado em meses ou anos.
+  Investimentos de longo prazo tendem a maximizar o efeito dos juros compostos,
+  o que significa que quanto mais tempo o dinheiro estiver aplicado, maior será
+  o rendimento ao final.
+</p>
+<p #interestRate hidden>
+  A taxa de juros é o percentual que representa o rendimento do investimento.
+  Ela define quanto seu dinheiro "cresce" a cada período, sendo geralmente
+  informada como taxa mensal ou anual. É importante lembrar que uma taxa de
+  juros mais alta gera retornos maiores, mas, em simulações com taxas muito
+  altas, o risco pode ser maior. As simulações permitem que você entenda os
+  impactos de diferentes taxas sobre o montante final.
+</p>
+<p #monthlyContribution hidden>
+  O aporte mensal é o valor que você adicionará ao investimento todos os meses.
+  Esse valor é somado ao montante inicial e ajuda a acelerar o crescimento do
+  saldo investido. Quanto maior o valor do aporte mensal, mais rapidamente o
+  investimento cresce, pois os juros também incidem sobre essas contribuições
+  adicionais.
+</p>
+<p #initialAmount hidden>
+  O valor inicial é a quantia de dinheiro que você decide investir no início da
+  aplicação financeira. Este valor serve como ponto de partida e base para o
+  cálculo dos rendimentos. Um valor inicial mais alto pode potencialmente gerar
+  retornos maiores, uma vez que os juros incidirão sobre uma quantia maior desde
+  o começo.
+</p>
