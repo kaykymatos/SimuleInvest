@@ -7,10 +7,11 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { registerLocaleData } from '@angular/common';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes), provideAnimationsAsync()
+    provideRouter(routes), provideAnimationsAsync(), provideEnvironmentNgxMask()
   ],
 };
