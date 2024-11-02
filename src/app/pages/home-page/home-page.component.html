@@ -16,12 +16,11 @@
                 formControlName="initialAmount"
                 name="initialAmount"
                 placeholder="R$ 0,00"
-
-                mask="separator.2" 
-                thousandSeparator="." 
-                decimalMarker="," 
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
                 [allowNegativeNumbers]="false"
-                [dropSpecialCharacters]="true" 
+                [dropSpecialCharacters]="true"
               />
               <span
                 class="input-group-text"
@@ -55,12 +54,11 @@
                 formControlName="monthlyContribution"
                 name="monthlyContribution"
                 placeholder="R$ 0,00"
-
-                mask="separator.2" 
-                thousandSeparator="." 
-                decimalMarker="," 
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
                 [allowNegativeNumbers]="false"
-                [dropSpecialCharacters]="true" 
+                [dropSpecialCharacters]="true"
               />
               <span
                 class="input-group-text"
@@ -94,12 +92,11 @@
                 formControlName="interestRate"
                 name="interestRate"
                 placeholder="0,0"
-
-                mask="separator.2" 
-                thousandSeparator="." 
-                decimalMarker="," 
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
                 [allowNegativeNumbers]="false"
-                [dropSpecialCharacters]="true" 
+                [dropSpecialCharacters]="true"
               />
               <span
                 class="input-group-text"
@@ -131,13 +128,13 @@
                 id="duration"
                 required
                 formControlName="duration"
-                name="duration" placeholder="0"
-
-                mask="separator.2" 
-                thousandSeparator="." 
-                decimalMarker="," 
+                name="duration"
+                placeholder="0"
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
                 [allowNegativeNumbers]="false"
-                [dropSpecialCharacters]="true" 
+                [dropSpecialCharacters]="true"
               />
               <span
                 class="input-group-text"
@@ -182,26 +179,34 @@
 
 <section class="container my-5 p-4 bg-white shadow-sm rounded" *ngIf="results">
   <h2 class="mb-4 text-primary">Resultados da Simulação</h2>
-  <p>
-    <strong>Montante Total ao Final:</strong>
-    {{ results.total | currency : "BRL" : "symbol" }}
-  </p>
 
+  <div class="result-container">
+    <p>
+      <strong class="result-label">Resultado final do investimento:</strong>
+      <span class="result-value">
+        <i class="fa fa-chart-line"></i>
+        {{ results.total | currency : "BRL" : "symbol" }}
+      </span>
+    </p>
+  </div>
   <div class="mt-4">
-    <ngx-charts-line-chart
-      [view]="[700, 400]"
-      [scheme]="'cool'"
-      [results]="chartData"
-      [xAxis]="true"
-      [yAxis]="true"
-      [legend]="false"
-      [showXAxisLabel]="true"
-      [showYAxisLabel]="true"
-      [xAxisLabel]="'Meses'"
-      [yAxisLabel]="'Saldo (R$)'"
-      [autoScale]="true"
-    >
-    </ngx-charts-line-chart>
+    <div *ngFor="let chartGroup of chartData; let index = index">
+      <h3>{{ index + 1 }}° Ano</h3>
+      <ngx-charts-line-chart
+        [view]="[700, 400]"
+        [scheme]="'cool'"
+        [results]="chartGroup"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Meses'"
+        [yAxisLabel]="'Saldo (R$)'"
+        [autoScale]="true"
+      >
+      </ngx-charts-line-chart>
+    </div>
   </div>
 </section>
 

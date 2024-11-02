@@ -27,7 +27,13 @@ registerLocaleData(ptBr);
   selector: 'app-home-page',
   standalone: true,
   templateUrl: './home-page.component.html',
-  imports: [ReactiveFormsModule, CurrencyPipe, NgxChartsModule, NgxMaskDirective, NgxMaskPipe],
+  imports: [
+    ReactiveFormsModule,
+    CurrencyPipe,
+    NgxChartsModule,
+    NgxMaskDirective,
+    NgxMaskPipe,
+  ],
   providers: [
     CurrencyPipe,
     provideNgxMask(),
@@ -42,19 +48,21 @@ registerLocaleData(ptBr);
   ],
   styleUrls: ['./home-page.component.scss'],
 })
+
 export class HomePageComponent implements OnInit {
   investmentForm: FormGroup = {} as FormGroup;
   results: ICalcResult | null = null;
-  chartData: { name: string; series: { name: string; value: number }[] }[] = [];
+  chartData: { name: string; series: { name: string; value: number }[] }[][] = [];
   submitted: boolean = false;
+  
   constructor(private fb: FormBuilder, private currencyPipe: CurrencyPipe) {}
 
   ngOnInit() {
     this.investmentForm = this.fb.group({
-      initialAmount: ["", [Validators.required, Validators.min(1)]],
-      monthlyContribution: ["", [Validators.required, Validators.min(1)]],
-      interestRate: ["", [Validators.required, Validators.min(1)]],
-      duration: ["", [Validators.required, Validators.min(1)]],
+      initialAmount: ['', [Validators.required, Validators.min(1)]],
+      monthlyContribution: ['', [Validators.required, Validators.min(1)]],
+      interestRate: ['', [Validators.required, Validators.min(1)]],
+      duration: ['', [Validators.required, Validators.min(1)]],
     });
   }
 
@@ -73,7 +81,7 @@ export class HomePageComponent implements OnInit {
       totalAmount = totalAmount * (1 + monthlyRate) + monthlyContribution;
       monthlyBalances.push({ month, amount: totalAmount });
     }
-    
+
     return {
       total: totalAmount,
       monthlyBalances,
@@ -83,12 +91,15 @@ export class HomePageComponent implements OnInit {
   get initialAmountInput() {
     return this.investmentForm.get('initialAmount');
   }
+
   get monthlyContributionInput() {
     return this.investmentForm.get('monthlyContribution');
   }
+
   get interestRateInput() {
     return this.investmentForm.get('interestRate');
   }
+
   get durationInput() {
     return this.investmentForm.get('duration');
   }
@@ -98,24 +109,27 @@ export class HomePageComponent implements OnInit {
     if (this.investmentForm?.valid) {
       const { initialAmount, monthlyContribution, interestRate, duration } =
         this.investmentForm.value;
-        
-        this.results = this.calculateInvestment(
-          initialAmount,
-          monthlyContribution,
-          interestRate,
-          duration
-        );
-    console.log("this.results",this.results)
-        this.chartData = [
+
+      this.results = this.calculateInvestment(
+        initialAmount,
+        monthlyContribution,
+        interestRate,
+        duration
+      );
+      let anos = 0;
+      for (let i = 0; i < this.results.monthlyBalances.length; i += 12) {
+        const chunk = this.results.monthlyBalances.slice(i, i + 12);
+        anos++;
+        this.chartData.push([
           {
-            name: 'Investimento',
-            series:
-              this.results?.monthlyBalances.map((balance) => ({
-                name: `Mês ${balance.month}`,
-                value: balance.amount ?? 0,
-              })) || [],
+            name: `Gráfico ${Math.floor(i / 12) + 1}`,
+            series: chunk.map((balance, index) => ({
+              name: `Mês ${index + 1}`,
+              value: balance.amount ?? 0,
+            })),
           },
-        ];
+        ]);
+      }
     }
   }
 
