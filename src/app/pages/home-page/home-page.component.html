@@ -4,20 +4,28 @@
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-lg-12">
-        <form (ngSubmit)="onSubmit()" #investmentForm="ngForm">
+        <form [formGroup]="investmentForm" (ngSubmit)="onSubmit()">
           <label for="initialAmount">Valor Inicial</label>
           <div class="form-floating mb-3">
             <div class="input-group">
               <input
                 class="form-control"
-                type="number"
+                type="text"
                 id="initialAmount"
                 required
-                [(ngModel)]="initialAmount"
+                formControlName="initialAmount"
                 name="initialAmount"
                 placeholder="R$ 0,00"
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
+                [allowNegativeNumbers]="false"
+                [dropSpecialCharacters]="true"
               />
-              <span class="input-group-text">
+              <span
+                class="input-group-text"
+                (click)="openModal('Valor Inicial', initialAmount)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -26,11 +34,13 @@
                 />
               </span>
             </div>
-            @if(errors['initialAmount']){
+            @if(submitted){ @if(initialAmountInput?.errors){
             <div class="text-danger">
-              {{ errors["initialAmount"] }}
+              @if(initialAmountInput?.errors?.['required']) { O valor inicial do
+              investimento é obrigatório } @else if(initialAmountInput?.errors?.['min']) { O valor deve ser maior
+              ou igual a 1 }
             </div>
-            }
+            }}
           </div>
 
           <label for="monthlyContribution">Aporte Mensal</label>
@@ -38,13 +48,22 @@
             <div class="input-group">
               <input
                 class="form-control"
-                type="number"
+                type="text"
                 id="monthlyContribution"
                 required
-                [(ngModel)]="monthlyContribution"
+                formControlName="monthlyContribution"
                 name="monthlyContribution"
+                placeholder="R$ 0,00"
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
+                [allowNegativeNumbers]="false"
+                [dropSpecialCharacters]="true"
               />
-              <span class="input-group-text"data-toggle="modal" data-target="#aporteMensalInfo">
+              <span
+                class="input-group-text"
+                (click)="openModal('Aporte Mensal', monthlyContribution)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -53,11 +72,13 @@
                 />
               </span>
             </div>
-            @if(errors['monthlyContribution']){
+            @if(submitted){ @if(monthlyContributionInput?.errors){
             <div class="text-danger">
-              {{ errors["monthlyContribution"] }}
+              @if(monthlyContributionInput?.errors?.['required']) { O aporte
+              mensal do investimento é obrigatório } @else if(monthlyContributionInput?.errors?.['min']) { O valor deve ser
+              maior ou igual a 1 }
             </div>
-            }
+            }}
           </div>
 
           <label for="interestRate">Taxa de Juros (% ao ano):</label>
@@ -65,13 +86,22 @@
             <div class="input-group">
               <input
                 class="form-control"
-                type="number"
+                type="text"
                 id="interestRate"
                 required
-                [(ngModel)]="interestRate"
+                formControlName="interestRate"
                 name="interestRate"
+                placeholder="0,0"
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
+                [allowNegativeNumbers]="false"
+                [dropSpecialCharacters]="true"
               />
-              <span class="input-group-text"data-toggle="modal" data-target="#taxaJurosInfo">
+              <span
+                class="input-group-text"
+                (click)="openModal('Taxa de Juros (% ao ano):', interestRate)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -80,11 +110,13 @@
                 />
               </span>
             </div>
-            @if(errors['interestRate']){
+            @if(submitted){ @if(interestRateInput?.errors){
             <div class="text-danger">
-              {{ errors["interestRate"] }}
+              @if(interestRateInput?.errors?.['required']) { A taxa de juros do
+              investimento é obrigatório! } @else if(interestRateInput?.errors?.['min']) { O valor deve ser maior ou
+              igual a 1! }
             </div>
-            }
+            }}
           </div>
 
           <label for="duration">Duração (anos):</label>
@@ -92,13 +124,22 @@
             <div class="input-group">
               <input
                 class="form-control"
-                type="number"
+                type="text"
                 id="duration"
                 required
-                [(ngModel)]="duration"
+                formControlName="duration"
                 name="duration"
+                placeholder="0"
+                mask="separator.2"
+                thousandSeparator="."
+                decimalMarker=","
+                [allowNegativeNumbers]="false"
+                [dropSpecialCharacters]="true"
               />
-              <span class="input-group-text" data-toggle="modal" data-target="#duracaoInfo">
+              <span
+                class="input-group-text"
+                (click)="openModal('Duração (anos):', duracao)"
+              >
                 <img
                   src="https://img.icons8.com/fluency-systems-regular/20/info--v1.png"
                   style="cursor: pointer"
@@ -107,17 +148,14 @@
                 />
               </span>
             </div>
-            @if(errors['duration']){
-            <div class="text-danger">
-              {{ errors["duration"] }}
-            </div>
-            }
-          </div>
 
-          <div class="d-none" id="submitErrorMessage">
-            <div class="text-center text-danger mb-3">
-              Error sending message!
+            @if(submitted){ @if(durationInput?.errors){
+            <div class="text-danger">
+              @if(durationInput?.errors?.['required']) { O período do
+              investimento é obrigatório! } @else if(durationInput?.errors?.['min']) { O valor deve ser maior ou
+              igual a 1! }
             </div>
+            }}
           </div>
 
           <div class="d-flex">
@@ -141,25 +179,62 @@
 
 <section class="container my-5 p-4 bg-white shadow-sm rounded" *ngIf="results">
   <h2 class="mb-4 text-primary">Resultados da Simulação</h2>
-  <p>
-    <strong>Montante Total ao Final:</strong>
-    {{ results.total | currency : "BRL" : "symbol" }}
-  </p>
 
+  <div class="result-container">
+    <p>
+      <strong class="result-label">Resultado final do investimento:</strong>
+      <span class="result-value">
+        <i class="fa fa-chart-line"></i>
+        {{ results.total | currency : "BRL" : "symbol" }}
+      </span>
+    </p>
+  </div>
   <div class="mt-4">
-    <ngx-charts-line-chart
-      [view]="[700, 400]"
-      [scheme]="'cool'"
-      [results]="chartData"
-      [xAxis]="true"
-      [yAxis]="true"
-      [legend]="false"
-      [showXAxisLabel]="true"
-      [showYAxisLabel]="true"
-      [xAxisLabel]="'Meses'"
-      [yAxisLabel]="'Saldo (R$)'"
-      [autoScale]="true"
-    >
-    </ngx-charts-line-chart>
+    <div *ngFor="let chartGroup of chartData; let index = index">
+      <h3>{{ index + 1 }}° Ano</h3>
+      <ngx-charts-line-chart
+        [view]="[700, 400]"
+        [scheme]="'cool'"
+        [results]="chartGroup"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="false"
+        [showXAxisLabel]="true"
+        [showYAxisLabel]="true"
+        [xAxisLabel]="'Meses'"
+        [yAxisLabel]="'Saldo (R$)'"
+        [autoScale]="true"
+      >
+      </ngx-charts-line-chart>
+    </div>
   </div>
 </section>
+
+<p #duracao hidden>
+  A duração do investimento é o tempo que o valor permanecerá aplicado,
+  geralmente indicado em meses ou anos. Investimentos de longo prazo tendem a
+  maximizar o efeito dos juros compostos, o que significa que quanto mais tempo
+  o dinheiro estiver aplicado, maior será o rendimento ao final.
+</p>
+<p #interestRate hidden>
+  A taxa de juros é o percentual que representa o rendimento do investimento.
+  Ela define quanto seu dinheiro "cresce" a cada período, sendo geralmente
+  informada como taxa mensal ou anual. É importante lembrar que uma taxa de
+  juros mais alta gera retornos maiores, mas, em simulações com taxas muito
+  altas, o risco pode ser maior. As simulações permitem que você entenda os
+  impactos de diferentes taxas sobre o montante final.
+</p>
+<p #monthlyContribution hidden>
+  O aporte mensal é o valor que você adicionará ao investimento todos os meses.
+  Esse valor é somado ao montante inicial e ajuda a acelerar o crescimento do
+  saldo investido. Quanto maior o valor do aporte mensal, mais rapidamente o
+  investimento cresce, pois os juros também incidem sobre essas contribuições
+  adicionais.
+</p>
+<p #initialAmount hidden>
+  O valor inicial é a quantia de dinheiro que você decide investir no início da
+  aplicação financeira. Este valor serve como ponto de partida e base para o
+  cálculo dos rendimentos. Um valor inicial mais alto pode potencialmente gerar
+  retornos maiores, uma vez que os juros incidirão sobre uma quantia maior desde
+  o começo.
+</p>

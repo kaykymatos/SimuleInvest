@@ -1,10 +1,20 @@
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import ptBr from '@angular/common/locales/pt';
-import { Component, DEFAULT_CURRENCY_CODE, LOCALE_ID } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatDialogConfig } from '@angular/material/dialog';
+import {
+  Component,
+  DEFAULT_CURRENCY_CODE,
+  LOCALE_ID,
+  OnInit,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { environment } from '../../../environments/environment.development';
+import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
+import Swal from 'sweetalert2';
 
 interface ICalcResult {
   total: number;
@@ -17,9 +27,16 @@ registerLocaleData(ptBr);
   selector: 'app-home-page',
   standalone: true,
   templateUrl: './home-page.component.html',
-  imports: [FormsModule, CurrencyPipe, NgxChartsModule],
+  imports: [
+    ReactiveFormsModule,
+    CurrencyPipe,
+    NgxChartsModule,
+    NgxMaskDirective,
+    NgxMaskPipe,
+  ],
   providers: [
     CurrencyPipe,
+    provideNgxMask(),
     {
       provide: LOCALE_ID,
       useValue: 'pt-BR',
@@ -29,20 +46,25 @@ registerLocaleData(ptBr);
       useValue: 'BRL',
     },
   ],
-  styleUrls: ['./home-page.component.scss'], // Corrigido para styleUrls
+  styleUrls: ['./home-page.component.scss'],
 })
-export class HomePageComponent {
-  public projectName = environment.ProjectName;
 
-  constructor(private decimalPipe: CurrencyPipe) {}
-
-  errors: { [key: string]: string } = {};
-  initialAmount: number = 0;
-  monthlyContribution: number = 0;
-  interestRate: number = 0;
-  duration: number = 0;
+export class HomePageComponent implements OnInit {
+  investmentForm: FormGroup = {} as FormGroup;
   results: ICalcResult | null = null;
-  chartData: { name: string; series: { name: string; value: number }[] }[] = [];
+  chartData: { name: string; series: { name: string; value: number }[] }[][] = [];
+  submitted: boolean = false;
+  
+  constructor(private fb: FormBuilder, private currencyPipe: CurrencyPipe) {}
+
+  ngOnInit() {
+    this.investmentForm = this.fb.group({
+      initialAmount: ['', [Validators.required, Validators.min(1)]],
+      monthlyContribution: ['', [Validators.required, Validators.min(1)]],
+      interestRate: ['', [Validators.required, Validators.min(1)]],
+      duration: ['', [Validators.required, Validators.min(1)]],
+    });
+  }
 
   calculateInvestment(
     initialAmount: number,
@@ -52,7 +74,6 @@ export class HomePageComponent {
   ): ICalcResult {
     const monthlyRate = interestRate / 100 / 12;
     const totalMonths = duration * 12;
-
     let totalAmount = initialAmount;
     const monthlyBalances: { month: number; amount: number }[] = [];
 
@@ -67,59 +88,63 @@ export class HomePageComponent {
     };
   }
 
-  formValidation() {
-    this.errors = {};
+  get initialAmountInput() {
+    return this.investmentForm.get('initialAmount');
+  }
 
-    if (this.initialAmount === null || this.initialAmount <= 0) {
-      this.errors['initialAmount'] = 'O valor inicial deve ser maior que zero.';
-    }
-    if (this.monthlyContribution === null || this.monthlyContribution < 0) {
-      this.errors['monthlyContribution'] =
-        'O aporte mensal não pode ser negativo.';
-    }
-    if (this.interestRate === null || this.interestRate <= 0) {
-      this.errors['interestRate'] = 'A taxa de juros deve ser maior que zero.';
-    }
-    if (this.duration === null || this.duration <= 0) {
-      this.errors['duration'] = 'A duração deve ser maior que zero.';
-    }
+  get monthlyContributionInput() {
+    return this.investmentForm.get('monthlyContribution');
+  }
 
-    if (Object.keys(this.errors).length > 0) {
-      return;
-    }
+  get interestRateInput() {
+    return this.investmentForm.get('interestRate');
+  }
+
+  get durationInput() {
+    return this.investmentForm.get('duration');
   }
 
   onSubmit() {
-    this.formValidation();
-    this.results = this.calculateInvestment(
-      this.initialAmount,
-      this.monthlyContribution,
-      this.interestRate,
-      this.duration
-    );
+    this.submitted = true;
+    if (this.investmentForm?.valid) {
+      const { initialAmount, monthlyContribution, interestRate, duration } =
+        this.investmentForm.value;
 
-    this.chartData = [
-      {
-        name: 'Investimento',
-        series:
-          this.results?.monthlyBalances.map((balance) => ({
-            name: `Mês ${balance.month}`,
-            value: balance.amount ?? 0,
-          })) || [],
-      },
-    ];
+      this.results = this.calculateInvestment(
+        initialAmount,
+        monthlyContribution,
+        interestRate,
+        duration
+      );
+      let anos = 0;
+      for (let i = 0; i < this.results.monthlyBalances.length; i += 12) {
+        const chunk = this.results.monthlyBalances.slice(i, i + 12);
+        anos++;
+        this.chartData.push([
+          {
+            name: `Gráfico ${Math.floor(i / 12) + 1}`,
+            series: chunk.map((balance, index) => ({
+              name: `Mês ${index + 1}`,
+              value: balance.amount ?? 0,
+            })),
+          },
+        ]);
+      }
+    }
   }
 
   resetForm() {
-    this.initialAmount = 0;
-    this.monthlyContribution = 0;
-    this.interestRate = 0;
-    this.duration = 0;
+    this.investmentForm?.reset();
     this.results = null;
     this.chartData = [];
+    this.submitted = false;
   }
 
-  formatCurrency(value: number): string | null {
-    return this.decimalPipe.transform(value);
+  openModal(title: string, text: HTMLParagraphElement) {
+    Swal.fire({
+      icon: 'info',
+      title: title,
+      text: text.textContent?.toString(),
+    });
   }
 }
