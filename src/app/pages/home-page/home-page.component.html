@@ -3,7 +3,7 @@
 
   <div class="container my-5">
     <div class="row justify-content-center">
-      <div class="col-lg-12">
+      <div class="col-lg-12 col-sm-12 col-xs-12 col-xl-12 col-md-12">
         <form [formGroup]="investmentForm" (ngSubmit)="onSubmit()">
           <label for="initialAmount">Valor Inicial</label>
           <div class="form-floating mb-3">
@@ -177,7 +177,7 @@
   </div>
 </section>
 
-<section class="container my-5 p-4 bg-white shadow-sm rounded" *ngIf="results">
+<section class="container my-5 p-4 bg-white shadow-sm rounded col-lg-12 col-sm-12 col-xs-12 col-xl-12 col-md-12" *ngIf="results">
   <h2 class="mb-4 text-primary">Resultados da Simulação</h2>
 
   <div class="result-container">
@@ -189,11 +189,10 @@
       </span>
     </p>
   </div>
-  <div class="mt-4">
+  <div class="mt-4 col-12">
     <div *ngFor="let chartGroup of chartData; let index = index">
       <h3>{{ index + 1 }}° Ano</h3>
       <ngx-charts-line-chart
-        [view]="[700, 400]"
         [scheme]="'cool'"
         [results]="chartGroup"
         [xAxis]="true"
